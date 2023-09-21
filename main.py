@@ -1,16 +1,11 @@
 # Screen resolution 800x480p
+from enum import Enum
 
-import tkinter
+from utils.ui_handler import UI
+from utils.consts import Anchor
 
-window = tkinter.Tk()
-
-test = tkinter.Label(
-    text="Hello World",
-    fg="white",
-    bg="black",
-    width=800,
-    height=480
-)
-
-test.pack()
-window.mainloop()
+try:
+    UI_instance = UI([500, 100], False)
+    UI_instance.add_label("test", "Hello World", "white", "black", 0.5, 0.5, Anchor.TOPLEFT.value)
+finally:
+    UI_instance.window.mainloop()
