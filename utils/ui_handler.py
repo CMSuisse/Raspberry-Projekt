@@ -1,4 +1,4 @@
-chimport tkinter as tk
+import tkinter as tk
 
 
 class UI:
