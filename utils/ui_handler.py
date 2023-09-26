@@ -1,13 +1,8 @@
 import tkinter as tk
 
 
-class UI:
-    def __init__(self, resolution: list, fullscreen: bool) -> None:
-        # All the labels and buttons will be stored in dicts to edit and delete them
-        # based on a tag name
-        self.labels = {}
-        self.buttons = {}
-
+class UI():
+    def __init__(self, resolution: list, fullscreen: bool, bg_color: str) -> None:
         # Initialize the window
         self.window = tk.Tk()
         # Tkinter resolution has to be set with a string of format 000x000
@@ -20,7 +15,8 @@ class UI:
             master=self.window,
             width=resolution[0],
             height=resolution[1],
-            borderwidth=1
+            borderwidth=1,
+            bg=bg_color
         )
         self.main_frame.pack()
 
@@ -34,18 +30,25 @@ class UI:
                 bg="red",
                 command=self.window.destroy
             )
-            self.quit_button.place(relx=0.99, rely=0.01, anchor="ne")
+            self.quit_button.place(relx=0.99, rely=0.075, anchor="se")
 
-    # Adds a simple label to a screen with width and heigth fitting the text
+    # Adds a simple label to the screen  
     def add_label(
-        self, tag: str, text: str, foreground: str, background: str, 
-        relx: float, rely: float, anchor: str):
-
+        self, text:str, font: str, font_size: int, foreground: str, background:str,
+        relx: float, rely: float, width: int, height: int, anchor: str) -> None:
+        
         label = tk.Label(
             master=self.main_frame,
             text=text,
+            font=(font, font_size),
             fg=foreground,
-            bg=background
+            bg=background,
+            width=width,
+            height=height
         )
         label.place(relx=relx, rely=rely, anchor=anchor)
-        self.labels[tag] = label
+
+    def add_button(
+        self
+    ) -> None:
+        pass
