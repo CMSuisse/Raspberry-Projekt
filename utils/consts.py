@@ -11,3 +11,10 @@ class Anchor(Enum):
     BOTTOMLEFT = "sw"
     LEFT = "w"
     CENTER = "center"
+
+RESOLUTION_SETTINGS = {
+    "360p": [480, 360],
+    "480p": [720, 480],
+    "720p": [1280, 720],
+    "1080p": [1920, 1080],
+}
