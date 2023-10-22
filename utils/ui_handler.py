@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 
-
 class UI():
     def __init__(self, resolution: list, fullscreen: bool, bg_color: str) -> None:
         self.bg_color = bg_color
@@ -58,7 +57,7 @@ class UI():
 
     def add_button(
         self, text: str, font: str, font_size: int, foreground: str, background: str,
-        relx: float, rely: float, width: int, height: int, anchor: str, master=None
+        relx: float, rely: float, width: int, height: int, anchor: str, callback_function, master=None
     ) -> None:
 
         if master==None:
@@ -74,6 +73,7 @@ class UI():
             height=height
         )
         button.place(relx=relx, rely=rely, anchor=anchor)
+        button.bind("<Button-1>", callback_function)
 
     def add_frame(
         self, tag: str, border: bool,
@@ -93,6 +93,7 @@ class UI():
         # Add the frame to the dictionary to access it via its tag
         self.frames[tag] = frame
 
+    # Adds a dropdown menu to a specific label
     def add_dropdown(
         self, options_list: list,
         relx: float, rely: float, width: int, height: int, anchor: str, master=None
@@ -112,3 +113,33 @@ class UI():
         )
         entry["values"] = options_list
         entry.place(relx=relx, rely=rely, anchor=anchor)
+    
+    def add_slider(
+        self, start_value: int, end_value: int, is_horizontal: bool, fg_color: str, bg_color: str,
+        relx: float, rely: float, width: int, height: int, anchor: str, master=None
+    ) -> None:
+        
+        if master==None:
+            master=self.main_frame
+        
+        # The highlightbackground attribute is responsible for creating a white border when not set to self.bg_color
+        slider = tk.Scale(
+            master=master,
+            from_=start_value,
+            to=end_value,
+            orient=tk.HORIZONTAL if is_horizontal else None,
+            fg=fg_color,
+            bg=bg_color,
+            highlightbackground=self.bg_color,
+            width=width,
+            height=height
+        )
+        slider.place(relx=relx, rely=rely, anchor=anchor)
+    
+    def capture_image(self, e) -> None:
+        # Gather the values of the dropdowns and sliders
+        # Create a Picamera instance
+        # Capture an image with the give preview
+        # Save the image in a captures folder locally (create if necessary)
+        # Call the necessary functions to upload the image to Insta if user wants to do so
+        pass
