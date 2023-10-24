@@ -5,7 +5,7 @@ from utils.consts import Anchor, RESOLUTION_SETTINGS, OUTPUT_SETTINGS
 
 # Set up the window
 try:
-    UI_instance = UI([800, 480], False, "#B0B0B0")
+    UI_instance = UI([800, 480], True, "#B0B0B0")
 
     # Add all frames
     UI_instance.add_frame(
@@ -47,17 +47,23 @@ try:
 
     # Add all dropdowns
     UI_instance.add_dropdown(
-        list(RESOLUTION_SETTINGS.keys()),
+        list(RESOLUTION_SETTINGS.keys()), "resolution",
         0.5, 0.5, None, None, Anchor.CENTER.value, UI_instance.frames["resolution_frame"]
     )
     UI_instance.add_dropdown(
-        OUTPUT_SETTINGS,
+        OUTPUT_SETTINGS, "output",
         0.5, 0.5, None, None, Anchor.CENTER.value, UI_instance.frames["output_format_frame"]
     )
 
     # Add sliders
     UI_instance.add_slider(
         0, 5, True, "black", UI_instance.bg_color, 0.5, 0.7, None, None, Anchor.CENTER.value, UI_instance.frames["preview_countdown_frame"]
+    )
+
+    # Add checkboxes
+    UI_instance.add_checkbox(
+        "test", "Arial", 50, "test_var", "black", UI_instance.bg_color,
+        0.5, 0.5, 25, 25, Anchor.CENTER.value, None
     )
 
 # Then let it run

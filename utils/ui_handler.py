@@ -6,6 +6,8 @@ class UI():
         self.bg_color = bg_color
         # In this dictionary the frames that contain more complex UI elements are stored
         self.frames = {}
+        # In this dictionary the string variables that the program uses are stored
+        self.variables = {}
         # Initialize the window
         self.window = tk.Tk()
         # Tkinter resolution has to be set with a string of format 000x000
@@ -95,7 +97,7 @@ class UI():
 
     # Adds a dropdown menu to a specific label
     def add_dropdown(
-        self, options_list: list,
+        self, options_list: list, var_name: str,
         relx: float, rely: float, width: int, height: int, anchor: str, master=None
     ) -> None:
 
@@ -104,6 +106,7 @@ class UI():
 
         # Define the default value of the dropdown
         variable = tk.StringVar(master)
+        self.variables[var_name] = variable
 
         entry = ttk.Combobox(
             master,
@@ -135,6 +138,30 @@ class UI():
             height=height
         )
         slider.place(relx=relx, rely=rely, anchor=anchor)
+
+    def add_checkbox(
+        self, text: str, font: str, font_size: int, var_name: str, fg_color: str, bg_color: str,
+        relx: float, rely: float, width: int, height: int, anchor: str, callback_function, master=None
+    ) -> None:
+        
+        if master==None:
+            master=self.main_frame
+
+        variable = tk.StringVar(master)
+        self.variables[var_name] = variable
+
+        checkbox = tk.Checkbutton(
+            master=master,
+            text=text,
+            font=(font, font_size),
+            command=callback_function,
+            variable=variable,
+            fg=fg_color,
+            bg=bg_color,
+            width=width,
+            height=height
+        )
+        checkbox.place(relx=relx, rely=rely, anchor=anchor)
     
     def capture_image(self, e) -> None:
         # Gather the values of the dropdowns and sliders
