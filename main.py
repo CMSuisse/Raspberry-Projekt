@@ -57,13 +57,13 @@ try:
 
     # Add sliders
     UI_instance.add_slider(
-        0, 5, True, "black", UI_instance.bg_color, 0.5, 0.7, None, None, Anchor.CENTER.value, UI_instance.frames["preview_countdown_frame"]
+        "preview_length", 0, 10, True, "black", UI_instance.bg_color, 0.5, 0.7, None, None, Anchor.CENTER.value, UI_instance.frames["preview_countdown_frame"]
     )
 
     # Add checkboxes
     UI_instance.add_checkbox(
-        "test", "Arial", 50, "test_var", "black", UI_instance.bg_color,
-        0.5, 0.5, 25, 25, Anchor.CENTER.value, None
+        "Bild auf [API] hochladen", "Arial", 15, "upload_image", "black", UI_instance.bg_color,
+        0.5, 0.5, None, None, Anchor.CENTER.value
     )
 
 # Then let it run

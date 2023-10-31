@@ -1,5 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
+import picamera
+from time import sleep
+
+import utils.consts as consts
 
 class UI():
     def __init__(self, resolution: list, fullscreen: bool, bg_color: str) -> None:
@@ -118,16 +122,20 @@ class UI():
         entry.place(relx=relx, rely=rely, anchor=anchor)
     
     def add_slider(
-        self, start_value: int, end_value: int, is_horizontal: bool, fg_color: str, bg_color: str,
+        self, tag: str, start_value: int, end_value: int, is_horizontal: bool, fg_color: str, bg_color: str,
         relx: float, rely: float, width: int, height: int, anchor: str, master=None
     ) -> None:
         
         if master==None:
             master=self.main_frame
+
+        slider_value = tk.IntVar()
+        self.variables[tag] = slider_value
         
         # The highlightbackground attribute is responsible for creating a white border when not set to self.bg_color
         slider = tk.Scale(
             master=master,
+            variable=slider_value,
             from_=start_value,
             to=end_value,
             orient=tk.HORIZONTAL if is_horizontal else None,
@@ -141,20 +149,20 @@ class UI():
 
     def add_checkbox(
         self, text: str, font: str, font_size: int, var_name: str, fg_color: str, bg_color: str,
-        relx: float, rely: float, width: int, height: int, anchor: str, callback_function, master=None
+        relx: float, rely: float, width: int, height: int, anchor: str, master=None
     ) -> None:
         
         if master==None:
             master=self.main_frame
 
-        variable = tk.StringVar(master)
+        variable = tk.IntVar(master)
         self.variables[var_name] = variable
 
         checkbox = tk.Checkbutton(
             master=master,
             text=text,
             font=(font, font_size),
-            command=callback_function,
+            command=None,
             variable=variable,
             fg=fg_color,
             bg=bg_color,
@@ -169,4 +177,31 @@ class UI():
         # Capture an image with the give preview
         # Save the image in a captures folder locally (create if necessary)
         # Call the necessary functions to upload the image to Insta if user wants to do so
-        pass
+        #Get the variables
+        try:
+            resolution = consts.RESOLUTION_SETTINGS[self.variables["resolution"].get()]
+            output = self.variables["output"].get()
+            preview_length = self.variables["preview_length"].get()
+            upload_image = self.variables["upload_image"].get()
+
+            camera = picamera.PiCamera()
+            camera.resolution = resolution
+            camera.start_preview()
+            sleep(preview_length)
+            camera.capture("/home/pi/projects/Raspberry-Projekt/captures/image.{}".format(output))
+        except Exception as e:
+            # Handle errors with popup here
+            error_popup("An error occured. Please try again. Error: {}".format(e))
+            print(e)
+        finally:
+            camera.close()
+
+def error_popup(text: str):
+    win = tk.Toplevel()
+    win.wm_title("Error")
+
+    error = tk.Label(
+        master=win,
+        text=text
+    )
+    error.pack()
