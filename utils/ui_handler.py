@@ -1,12 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
+from utils.api_handler import API_Handler
 import picamera
 from time import sleep
 
 import utils.consts as consts
 
 class UI():
-    def __init__(self, resolution: list, fullscreen: bool, bg_color: str) -> None:
+    def __init__(self, resolution: list, fullscreen: bool, bg_color: str):
         self.bg_color = bg_color
         # In this dictionary the frames that contain more complex UI elements are stored
         self.frames = {}
@@ -101,7 +102,7 @@ class UI():
 
     # Adds a dropdown menu to a specific label
     def add_dropdown(
-        self, options_list: list, var_name: str,
+        self, options_list: list, default_index: int, var_name: str,
         relx: float, rely: float, width: int, height: int, anchor: str, master=None
     ) -> None:
 
@@ -119,6 +120,7 @@ class UI():
             textvariable=variable
         )
         entry["values"] = options_list
+        entry.current(default_index)
         entry.place(relx=relx, rely=rely, anchor=anchor)
     
     def add_slider(
@@ -171,7 +173,7 @@ class UI():
         )
         checkbox.place(relx=relx, rely=rely, anchor=anchor)
     
-    def capture_image(self, e) -> None:
+    def capture_image(self, api_instance: API_Handler) -> None:
         # Gather the values of the dropdowns and sliders
         # Create a Picamera instance
         # Capture an image with the give preview
@@ -189,6 +191,11 @@ class UI():
             camera.start_preview()
             sleep(preview_length)
             camera.capture("/home/pi/projects/Raspberry-Projekt/captures/image.{}".format(output))
+
+            # If the user selected it, upload the image to Flickr
+            if upload_image == 1:
+                api_instance.upload_capture("/home/pi/projects/Raspberry-Projekt/captures/image.{}".format(output))
+
         except Exception as e:
             # Handle errors with popup here
             error_popup("An error occured. Please try again. Error: {}".format(e))
@@ -196,7 +203,7 @@ class UI():
         finally:
             camera.close()
 
-def error_popup(text: str):
+def error_popup(text: str) -> None:
     win = tk.Toplevel()
     win.wm_title("Error")
 

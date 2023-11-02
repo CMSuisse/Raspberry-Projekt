@@ -1,11 +1,19 @@
 # Screen resolution 800x480
+from time import sleep
 
 from utils.ui_handler import UI
+from utils.api_handler import API_Handler
 from utils.consts import Anchor, RESOLUTION_SETTINGS, OUTPUT_SETTINGS
 
 # Set up the window
 try:
-    UI_instance = UI([800, 480], True, "#B0B0B0")
+
+    # Establish connection with the API
+    api = API_Handler()
+    print("Write token present: {}".format(api.token_valid(perms="write")))
+    sleep(1)
+
+    UI_instance = UI([800, 480], False, "#B0B0B0")
 
     # Add all frames
     UI_instance.add_frame(
@@ -42,16 +50,17 @@ try:
     # Add all buttons
     UI_instance.add_button(
         "CAPTURE", "Arial", 25, "white", "black",
-        0.5, 0.9, None, None, Anchor.CENTER.value, UI_instance.capture_image
+        0.5, 0.9, None, None, Anchor.CENTER.value,
+        callback_function=lambda e: UI_instance.capture_image(api_instance=api)
     )
 
     # Add all dropdowns
     UI_instance.add_dropdown(
-        list(RESOLUTION_SETTINGS.keys()), "resolution",
+        list(RESOLUTION_SETTINGS.keys()), 0, "resolution",
         0.5, 0.5, None, None, Anchor.CENTER.value, UI_instance.frames["resolution_frame"]
     )
     UI_instance.add_dropdown(
-        OUTPUT_SETTINGS, "output",
+        OUTPUT_SETTINGS, 0, "output",
         0.5, 0.5, None, None, Anchor.CENTER.value, UI_instance.frames["output_format_frame"]
     )
 
@@ -65,6 +74,8 @@ try:
         "Bild auf [API] hochladen", "Arial", 15, "upload_image", "black", UI_instance.bg_color,
         0.5, 0.5, None, None, Anchor.CENTER.value
     )
+
+    print("UI loading complete")
 
 # Then let it run
 finally:
