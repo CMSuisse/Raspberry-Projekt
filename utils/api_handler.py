@@ -3,9 +3,11 @@ import string
 import webbrowser
 
 import dotenv
-from flickrapi.core import FlickrAPI
+from flickrapi import core
 
-class API_Handler(FlickrAPI):
+from utils import helper_functions
+
+class API_Handler(core.FlickrAPI):
     # Grab the values from the .env file directly instead of them being passed
     # as parameters for __init__
     def __init__(self):
@@ -27,11 +29,14 @@ class API_Handler(FlickrAPI):
             self.get_access_token(verifier)
 
     def upload_capture(self, photo_path: str) -> None:
-        params = {}
-        # Add a (probably) unique identifier to avoid errors when uploading
-        photo_id = "".join(random.choice(string.ascii_letters) for _ in range(10))
+        try:
+            # Add a (probably) unique identifier to avoid errors when uploading
+            photo_id = "".join(random.choice(string.ascii_letters) for _ in range(10))
 
-        params["file_name"] = photo_path
-        params["title"] = photo_path.split("/")[-1] + "_" + photo_id
-        params["description"] = "Image uploaded using FlickrAPI"
-        self.upload_photo(**params)
+            title = photo_path.split("/")[-1] + "_" + photo_id
+            description = "Image uploaded using FlickrAPI"
+            self.upload(filename=photo_path, title=title, description=description)
+        
+        except Exception as e:
+            # Handle errors with popup here
+            helper_functions.popup("Error", "Your image couldn't be uploaded. Error: {}".format(e))

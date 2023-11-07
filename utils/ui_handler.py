@@ -4,9 +4,10 @@ from utils.api_handler import API_Handler
 import picamera
 from time import sleep
 
-import utils.consts as consts
+from utils import consts
+from utils import helper_functions
 
-class UI():
+class UI_Handler():
     def __init__(self, resolution: list, fullscreen: bool, bg_color: str):
         self.bg_color = bg_color
         # In this dictionary the frames that contain more complex UI elements are stored
@@ -173,13 +174,13 @@ class UI():
         )
         checkbox.place(relx=relx, rely=rely, anchor=anchor)
     
-    def capture_image(self, api_instance: API_Handler) -> None:
+    def capture_image(self, API_instance: API_Handler) -> None:
         # Gather the values of the dropdowns and sliders
         # Create a Picamera instance
         # Capture an image with the give preview
         # Save the image in a captures folder locally (create if necessary)
-        # Call the necessary functions to upload the image to Insta if user wants to do so
-        #Get the variables
+        # Call the necessary functions to upload the image to Flickr if user wants to do so
+        # Get the variables
         try:
             resolution = consts.RESOLUTION_SETTINGS[self.variables["resolution"].get()]
             output = self.variables["output"].get()
@@ -190,25 +191,21 @@ class UI():
             camera.resolution = resolution
             camera.start_preview()
             sleep(preview_length)
-            camera.capture("/home/pi/projects/Raspberry-Projekt/captures/image.{}".format(output))
-
-            # If the user selected it, upload the image to Flickr
-            if upload_image == 1:
-                api_instance.upload_capture("/home/pi/projects/Raspberry-Projekt/captures/image.{}".format(output))
+            image_path = "/home/pi/projects/Raspberry-Projekt/captures/image.{}".format(output)
+            camera.capture(image_path)
 
         except Exception as e:
             # Handle errors with popup here
-            error_popup("An error occured. Please try again. Error: {}".format(e))
-            print(e)
+            helper_functions.popup("Error", "An error occured. Please try again. Error: {}".format(e))
+        
         finally:
             camera.close()
-
-def error_popup(text: str) -> None:
-    win = tk.Toplevel()
-    win.wm_title("Error")
-
-    error = tk.Label(
-        master=win,
-        text=text
-    )
-    error.pack()
+            # If the user selected it, upload the image to Flickr
+            # Inform the user of the success of his requested action
+            if upload_image == 1:
+                API_instance.upload_capture(image_path)
+                helper_functions.popup("Success", "Your image has been uploaded to Flickr")
+            else:
+                helper_functions.popup("Success", 
+                "Your image was captured and saved under {}".format(image_path)
+                )
