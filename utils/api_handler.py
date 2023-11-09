@@ -1,11 +1,7 @@
-import random
-import string
 import webbrowser
 
 import dotenv
 from flickrapi import core
-
-from utils import helper_functions
 
 class API_Handler(core.FlickrAPI):
     # Grab the values from the .env file directly instead of them being passed
@@ -29,14 +25,8 @@ class API_Handler(core.FlickrAPI):
             self.get_access_token(verifier)
 
     def upload_capture(self, photo_path: str) -> None:
-        try:
-            # Add a (probably) unique identifier to avoid errors when uploading
-            photo_id = "".join(random.choice(string.ascii_letters) for _ in range(10))
-
-            title = photo_path.split("/")[-1] + "_" + photo_id
-            description = "Image uploaded using FlickrAPI"
-            self.upload(filename=photo_path, title=title, description=description)
-        
-        except Exception as e:
-            # Handle errors with popup here
-            helper_functions.popup("Error", "Your image couldn't be uploaded. Error: {}".format(e))
+        # Strip the file path from the file name
+        title = photo_path.split("/")[-1]
+        description = "Image uploaded using FlickrAPI"
+        # Upload using the flickrapi's built-in function
+        self.upload(filename=photo_path, title=title, description=description)

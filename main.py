@@ -3,31 +3,24 @@ from time import sleep
 
 from utils import ui_handler
 from utils import api_handler
-from utils.consts import Anchor, RESOLUTION_SETTINGS, OUTPUT_SETTINGS
+from utils.consts import Anchor, RESOLUTION_SETTINGS, OUTPUT_SETTINGS, DROPDOWN_FONT
 
-# Set up the window
-try:
-
-    # Establish connection with the Flickr API
-    API_instance = api_handler.API_Handler()
-    print("Write token present: {}".format(API_instance.token_valid(perms="write")))
-    sleep(1)
-
+def setup_window(API_instance):
     # Set up the UI
-    UI_instance = ui_handler.UI_Handler([800, 480], False, "#B0B0B0")
+    UI_instance = ui_handler.UI_Handler([800, 480], True, "#B0B0B0", DROPDOWN_FONT)
 
     # Add all frames
     UI_instance.add_frame(
         "resolution_frame", True,
-        0.01, 0.2, 380, 100, Anchor.TOPLEFT.value
+        0.01, 0.2, 380, 150, Anchor.TOPLEFT.value
     )
     UI_instance.add_frame(
         "output_format_frame", True,
-        0.99, 0.2, 380, 100, Anchor.TOPRIGHT.value
+        0.99, 0.2, 380, 150, Anchor.TOPRIGHT.value
     )
     UI_instance.add_frame(
         "preview_countdown_frame", True,
-        0.8, 0.9, 200, 75, Anchor.CENTER.value
+        0.8, 0.98, 275, 125, Anchor.BOTTOM.value
     )
 
     # Add all labels
@@ -36,15 +29,15 @@ try:
         0.5, 0.1, 800, None, Anchor.TOP.value
     )
     UI_instance.add_label(
-        "Enter your preferred resolution setting:", "Arial", 13, "black", UI_instance.bg_color,
+        "Enter your preferred resolution setting:", "Arial", 15, "black", UI_instance.bg_color,
         0.5, 0.1, None, None, Anchor.TOP.value, UI_instance.frames["resolution_frame"]
     )
     UI_instance.add_label(
-        "Enter your prefered output format", "Arial", 13, "black", UI_instance.bg_color,
+        "Enter your preferred output format", "Arial", 15, "black", UI_instance.bg_color,
         0.5, 0.1, None, None, Anchor.TOP.value, UI_instance.frames["output_format_frame"]
     )
     UI_instance.add_label(
-        "Preview length", "Arial", 13, "black", UI_instance.bg_color,
+        "Preview length", "Arial", 15, "black", UI_instance.bg_color,
         0.5, 0.1, None, None, Anchor.TOP.value, UI_instance.frames["preview_countdown_frame"]
     )
 
@@ -58,27 +51,41 @@ try:
 
     # Add all dropdowns
     UI_instance.add_dropdown(
-        list(RESOLUTION_SETTINGS.keys()), 0, "resolution",
+        list(RESOLUTION_SETTINGS.keys()), 0, "resolution", DROPDOWN_FONT,
         0.5, 0.5, None, None, Anchor.CENTER.value, UI_instance.frames["resolution_frame"]
     )
     UI_instance.add_dropdown(
-        OUTPUT_SETTINGS, 0, "output",
+        OUTPUT_SETTINGS, 0, "output", DROPDOWN_FONT,
         0.5, 0.5, None, None, Anchor.CENTER.value, UI_instance.frames["output_format_frame"]
     )
 
     # Add sliders
     UI_instance.add_slider(
-        "preview_length", 0, 10, True, "black", UI_instance.bg_color, 0.5, 0.7, None, None, Anchor.CENTER.value, UI_instance.frames["preview_countdown_frame"]
+        "preview_length", 0, 10, True, "black", UI_instance.bg_color, ["Arial", 15],
+        0.5, 0.65, 250, 30, Anchor.CENTER.value, UI_instance.frames["preview_countdown_frame"]
     )
 
     # Add checkboxes
     UI_instance.add_checkbox(
-        "Bild auf Flickr hochladen", "Arial", 15, "upload_image", "black", UI_instance.bg_color,
-        0.5, 0.5, None, None, Anchor.CENTER.value
+        "Bild auf Flickr hochladen", "Arial", 18, "upload_image", "black", UI_instance.bg_color,
+        0.5, 0.6, None, None, Anchor.CENTER.value
     )
 
     print("UI loading complete")
-
-# Then let it run
-finally:
     UI_instance.window.mainloop()
+
+def main():
+    try:
+        # Establish connection with the Flickr API
+        API_instance = api_handler.API_Handler()
+        print("Write token present: {}".format(API_instance.token_valid(perms="write")))
+
+        setup_window(API_instance)
+    except Exception as e:
+        print("Something went wrong wrong. Maybe just try again?")
+        print(e)
+    finally:
+        print("Goodbye")
+
+if __name__ == "__main__":
+    main()

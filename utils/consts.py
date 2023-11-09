@@ -27,3 +27,5 @@ OUTPUT_SETTINGS = (
     "rgba",
     "raw"
 )
+
+DROPDOWN_FONT = ("Arial", 18)
