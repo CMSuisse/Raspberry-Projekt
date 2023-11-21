@@ -1,6 +1,4 @@
 # Screen resolution 800x480
-from time import sleep
-
 from utils import ui_handler
 from utils import api_handler
 from utils.consts import Anchor, RESOLUTION_SETTINGS, OUTPUT_SETTINGS, DROPDOWN_FONT

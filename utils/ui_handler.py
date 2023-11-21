@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk
 from utils import api_handler
 import picamera
+from PIL import Image, ImageDraw, ImageFont
 from time import sleep
 
 from utils import consts
@@ -190,6 +191,20 @@ class UI_Handler():
             text=text
         )
         error.pack()
+
+    # Overlay the countdown onto the preview of the PiCamera
+    def do_countdown(self, preview_length: int) -> None:
+        overlay_size = (150, 100)
+        font = ImageFont.truetype("/usr/share/fonts/truetype/freefont/FreeSerif.ttf", 20)
+        counter = preview_length
+        while counter > 0:
+            overlay = Image.new("RGBA", overlay_size)
+            canvas = ImageDraw.Draw(overlay)
+            canvas.text((overlay_size[0]/2, overlay_size[1]/2), str(counter), (255, 255, 255),
+                        font=font, anchor="mm")
+            overlay.save("/home/pi/projects/Raspberry-Projekt/captures/countdown.png")
+            counter -= 1
+            sleep(1)
     
     def capture_image(self, API_instance: api_handler.API_Handler) -> None:
         try:
@@ -208,7 +223,7 @@ class UI_Handler():
             camera = picamera.PiCamera()
             camera.resolution = resolution
             camera.start_preview()
-            sleep(preview_length)
+            self.do_countdown(preview_length)
             camera.capture(image_path, format=output)
 
         except Exception as e:
