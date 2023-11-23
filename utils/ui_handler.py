@@ -1,5 +1,7 @@
+from functools import cmp_to_key
 import random
 import string
+import io
 
 import tkinter as tk
 from tkinter import ttk
@@ -193,18 +195,24 @@ class UI_Handler():
         error.pack()
 
     # Overlay the countdown onto the preview of the PiCamera
-    def do_countdown(self, preview_length: int) -> None:
-        overlay_size = (150, 100)
-        font = ImageFont.truetype("/usr/share/fonts/truetype/freefont/FreeSerif.ttf", 20)
+    def do_countdown(self, camera: picamera.PiCamera, preview_length: int) -> None:
+        overlay_size = (300, 300)
+        font = ImageFont.truetype("/usr/share/fonts/truetype/freefont/FreeSerif.ttf", overlay_size[0])
         counter = preview_length
         while counter > 0:
             overlay = Image.new("RGBA", overlay_size)
             canvas = ImageDraw.Draw(overlay)
-            canvas.text((overlay_size[0]/2, overlay_size[1]/2), str(counter), (255, 255, 255),
-                        font=font, anchor="mm")
-            overlay.save("/home/pi/projects/Raspberry-Projekt/captures/countdown.png")
+            canvas.text((0, 0), str(counter), (255, 255, 255),
+                        font=font)
+            overlay.save("/home/pi/projects/Raspberry-Projekt/captures/countdown.png", "png")
+            camera_overlay = camera.add_overlay(overlay.tobytes("raw", "RGBA"), 
+                            size=overlay_size, format="rgba")
+            camera_overlay.window=(0,0,500,500)
+            camera_overlay.alpha = 255
+            camera_overlay.layer = 3
             counter -= 1
             sleep(1)
+            camera.remove_overlay(camera_overlay)
     
     def capture_image(self, API_instance: api_handler.API_Handler) -> None:
         try:
@@ -223,7 +231,7 @@ class UI_Handler():
             camera = picamera.PiCamera()
             camera.resolution = resolution
             camera.start_preview()
-            self.do_countdown(preview_length)
+            self.do_countdown(camera, preview_length)
             camera.capture(image_path, format=output)
 
         except Exception as e:
