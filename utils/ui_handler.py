@@ -1,16 +1,7 @@
 from functools import cmp_to_key
-import random
-import string
-import io
 
 import tkinter as tk
 from tkinter import ttk
-from utils import api_handler
-import picamera
-from PIL import Image, ImageDraw, ImageFont
-from time import sleep
-
-from utils import consts
 
 class UI_Handler():
     def __init__(self, resolution: list, fullscreen: bool, bg_color: str, dropdown_font: tuple):
@@ -22,7 +13,8 @@ class UI_Handler():
         # Initialize the window
         self.window = tk.Tk()
         # Tkinter resolution has to be set with a string of format 000x000
-        self.window.geometry("{}x{}".format(resolution[0], resolution[1]))
+        self.resolution = resolution
+        self.window.geometry("{}x{}".format(self.resolution[0], self.resolution[1]))
         self.window.attributes("-fullscreen", fullscreen)
         # Set the font size of the comboboxes dropdown
         self.window.option_add("*TCombobox*Listbox.font", dropdown_font)
@@ -193,64 +185,3 @@ class UI_Handler():
             text=text
         )
         error.pack()
-
-    # Overlay the countdown onto the preview of the PiCamera
-    def do_countdown(self, camera: picamera.PiCamera, preview_length: int) -> None:
-        overlay_size = (300, 300)
-        font = ImageFont.truetype("/usr/share/fonts/truetype/freefont/FreeSerif.ttf", overlay_size[0])
-        counter = preview_length
-        while counter > 0:
-            overlay = Image.new("RGBA", overlay_size)
-            canvas = ImageDraw.Draw(overlay)
-            canvas.text((0, 0), str(counter), (255, 255, 255),
-                        font=font)
-            overlay.save("/home/pi/projects/Raspberry-Projekt/captures/countdown.png", "png")
-            camera_overlay = camera.add_overlay(overlay.tobytes("raw", "RGBA"), 
-                            size=overlay_size, format="rgba")
-            camera_overlay.window=(0,0,500,500)
-            camera_overlay.alpha = 255
-            camera_overlay.layer = 3
-            counter -= 1
-            sleep(1)
-            camera.remove_overlay(camera_overlay)
-    
-    def capture_image(self, API_instance: api_handler.API_Handler) -> None:
-        try:
-            # Gather the values of the dropdowns and sliders
-            resolution = consts.RESOLUTION_SETTINGS[self.variables["resolution"].get()]
-            output = self.variables["output"].get()
-            preview_length = self.variables["preview_length"].get()
-            upload_image = self.variables["upload_image"].get()
-
-            # Add a (probably) unique identifier to allow several images to be saved
-            photo_id = "".join(random.choice(string.ascii_letters) for _ in range(10))
-            image_path = "/home/pi/projects/Raspberry-Projekt/captures/image_{}.{}".format(
-                photo_id, output)
-
-            # Create a camera instance and capture the image
-            camera = picamera.PiCamera()
-            camera.resolution = resolution
-            camera.start_preview()
-            self.do_countdown(camera, preview_length)
-            camera.capture(image_path, format=output)
-
-        except Exception as e:
-            # Handle errors with popup here
-            self.popup("Error", "An error occured. Please try again. Error: {}".format(e))
-        
-        else:
-            self.popup("Success", 
-            "Your image was captured and saved under {}".format(image_path)
-            )
-
-        finally:
-            camera.close()
-            # If the user selected it, upload the image to Flickr
-            # Inform the user of the success or failure of his requested action
-            if upload_image == 1:
-                try:
-                    API_instance.upload_capture(image_path)
-                except Exception as e:
-                    self.popup("Error", "Your image couldn't be uploaded. Error: {}".format(e))
-                else:
-                    self.popup("Success", "Your image has been uploaded to Flickr")
