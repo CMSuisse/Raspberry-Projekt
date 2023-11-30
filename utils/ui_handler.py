@@ -1,7 +1,8 @@
-from functools import cmp_to_key
-
 import tkinter as tk
 from tkinter import ttk
+
+from utils import consts
+from utils.camera_handler import Camera_Handler
 
 class UI_Handler():
     def __init__(self, resolution: list, fullscreen: bool, bg_color: str, dropdown_font: tuple):
@@ -175,13 +176,16 @@ class UI_Handler():
             height=height
         )
         checkbox.place(relx=relx, rely=rely, anchor=anchor)
-    
-    def popup(self, title: str, text: str) -> None:
-        win = tk.Toplevel()
-        win.wm_title(title)
 
-        error = tk.Label(
-            master=win,
-            text=text
-        )
-        error.pack()
+    # The API instance is being passed from the button defined in the main.py file
+    def capture_image(self, API_instance):
+        # Gather the values of the dropdowns and sliders
+        resolution = consts.RESOLUTION_SETTINGS[self.variables["resolution"].get()]
+        output = self.variables["output"].get()
+        preview_length = self.variables["preview_length"].get()
+        upload_image = self.variables["upload_image"].get()
+
+        # Pass the values into a camera handler instance
+        camera = Camera_Handler(preview_length, resolution, output, upload_image, self)
+        # Capture an image using the camera handle class
+        camera.capture_image(API_instance)

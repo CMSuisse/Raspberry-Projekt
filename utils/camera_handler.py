@@ -1,58 +1,92 @@
 import random
 import string
 
-from utils import api_handler
 import picamera
+import tkinter as tk
 from time import sleep
 
+from utils.api_handler import API_Handler
+from utils.popup import popup
+from utils.consts import ANCHOR
 
-from utils import consts
+class Camera_Handler(picamera.PiCamera):
+    # This class is basically a picamera but also stores user-defined parameters
+    def __init__(self, 
+            preview_length: int, 
+            resolution: list, 
+            output: str, 
+            should_upload: int,
+            UI_instance):
+        super().__init__()
+        self.resolution = resolution
+        self.output_format = output
+        self.preview_length = preview_length
+        self.should_upload = should_upload
+        # Save the UI instance the camera handler belongs to
+        self.ui_instance = UI_instance
+        # Precalculate the dimensions of the preview window
+        # Controls how wide the preview is 1 is equal to screen width, 2 is 1/2 width
+        cam_prev_width_factor = 1.1
+        # Adjust for the different possible resolutions by scaling to a 360p
+        cam_prev_width_factor_resolution = cam_prev_width_factor/(640/self.resolution[0])
+        # Center the window in the x-axis
+        self.prev_window_x_pos = 400 - int(self.resolution[0]/cam_prev_width_factor_resolution)//2
+        self.prev_window_y_pos = 10
+        # Set width and height while conserving the 16:9 aspect ratio of the resolution
+        self.prev_window_width = int(self.resolution[0]/cam_prev_width_factor_resolution)
+        self.prev_window_height = int(self.resolution[0]/cam_prev_width_factor_resolution)*9//16
 
-class Camera_Handler():
-    # Overlay the countdown onto the preview of the PiCamera
-    def do_countdown(self, camera: picamera.PiCamera, preview_length: int) -> None:
-        sleep(preview_length)
+    # Create a new temporary window which contains the countdown
+    def do_countdown(self) -> None:
+        # Create top level full screen window
+        countdown_window = tk.Toplevel(self.ui_instance.window)
+        countdown_window.configure(bg=self.ui_instance.bg_color)
+        countdown_window.attributes("-fullscreen", True)
+        # Then start the preview
+        cam_prev = self.start_preview()
+        cam_prev.fullscreen = False
+        # Create the preview window using the precalculated values
+        cam_prev.window = (self.prev_window_x_pos,
+                        self.prev_window_y_pos,
+                        self.prev_window_width,
+                        self.prev_window_height)
+        # Then do the countdown
+        counter = self.preview_length
+        while counter > 0:
+            self.ui_instance.add_label(str(counter), "Arial", 100, "black", 
+                self.ui_instance.bg_color, 0.5, 0.99, 100, None, ANCHOR.BOTTOM.value, countdown_window)
+            # Normally, Tkinter waits til the program is idle, this forces it to update
+            self.ui_instance.window.update()
+            sleep(1)
+            counter -= 1
+        # This takes ridiculously long sometimes, but i dont really care about fixing it
+        countdown_window.destroy()
     
-    def capture_image(self, API_instance: api_handler.API_Handler) -> None:
+    def capture_image(self, API_instance: API_Handler) -> None:
         try:
-            # Gather the values of the dropdowns and sliders
-            resolution = consts.RESOLUTION_SETTINGS[self.variables["resolution"].get()]
-            output = self.variables["output"].get()
-            preview_length = self.variables["preview_length"].get()
-            upload_image = self.variables["upload_image"].get()
-
             # Add a (probably) unique identifier to allow several images to be saved
             photo_id = "".join(random.choice(string.ascii_letters) for _ in range(10))
             image_path = "/home/pi/projects/Raspberry-Projekt/captures/image_{}.{}".format(
-                photo_id, output)
+                photo_id, self.output_format)
 
-            # Create a camera instance and capture the image
-            camera = picamera.PiCamera()
-            camera.resolution = resolution
-            cam_prev = camera.start_preview()
-            cam_prev.fullscreen = False
-            # Create window using the 16:9 aspect ratio that all resolutions have
-            cam_prev.window = (0, 0, self.resolution[0]//2, self.resolution[0]//2*9//16)
-            self.do_countdown(camera, preview_length)
-            camera.capture(image_path, format=output)
+            self.do_countdown()
+            self.capture(image_path, format=self.output_format)
 
         except Exception as e:
             # Handle errors with popup here
-            self.popup("Error", "An error occured. Please try again. Error: {}".format(e))
+            popup("Error", "An error occured. Please try again. Error: {}".format(e))
         
         else:
-            self.popup("Success", 
-            "Your image was captured and saved under {}".format(image_path)
-            )
+            popup("Success", "Your image was captured and saved under {}".format(image_path))
 
         finally:
-            camera.close()
+            self.close()
             # If the user selected it, upload the image to Flickr
             # Inform the user of the success or failure of his requested action
-            if upload_image == 1:
+            if self.should_upload == 1:
                 try:
                     API_instance.upload_capture(image_path)
                 except Exception as e:
-                    self.popup("Error", "Your image couldn't be uploaded. Error: {}".format(e))
+                    popup("Error", "Your image couldn't be uploaded. Error: {}".format(e))
                 else:
-                    self.popup("Success", "Your image has been uploaded to Flickr")
+                    popup("Success", "Your image has been uploaded to Flickr")
