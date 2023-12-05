@@ -10,7 +10,7 @@ from utils.popup import popup
 from utils.consts import ANCHOR
 
 class Camera_Handler(picamera.PiCamera):
-    # This class is basically a picamera but also stores user-defined parameters
+    # This class is a picamera but also stores user-defined parameters
     def __init__(self, 
             preview_length: int, 
             resolution: list, 
@@ -18,25 +18,26 @@ class Camera_Handler(picamera.PiCamera):
             should_upload: int,
             UI_instance):
         super().__init__()
+        # These are the user-defined values
         self.resolution = resolution
         self.output_format = output
         self.preview_length = preview_length
         self.should_upload = should_upload
-        # Save the UI instance the camera handler belongs to
+        # This is the UI_Handler instance the camera "belongs" to
         self.ui_instance = UI_instance
         # Precalculate the dimensions of the preview window
-        # Controls how wide the preview is 1 is equal to screen width, 2 is 1/2 width
+        # 1 is equal to screen width, 2 is 1/2 screen width, etc (for a 360p).
         cam_prev_width_factor = 1.1
         # Adjust for the different possible resolutions by scaling to a 360p
         cam_prev_width_factor_resolution = cam_prev_width_factor/(640/self.resolution[0])
-        # Center the window in the x-axis
+        # Center the window in the x-axis and add set a y-offset
         self.prev_window_x_pos = 400 - int(self.resolution[0]/cam_prev_width_factor_resolution)//2
         self.prev_window_y_pos = 10
         # Set width and height while conserving the 16:9 aspect ratio of the resolution
         self.prev_window_width = int(self.resolution[0]/cam_prev_width_factor_resolution)
         self.prev_window_height = int(self.resolution[0]/cam_prev_width_factor_resolution)*9//16
 
-    # Create a new temporary window which contains the countdown
+    # Create a new temporary window to contain the countdown
     def do_countdown(self) -> None:
         # Create top level full screen window
         countdown_window = tk.Toplevel(self.ui_instance.window)
@@ -55,7 +56,7 @@ class Camera_Handler(picamera.PiCamera):
         while counter > 0:
             self.ui_instance.add_label(str(counter), "Arial", 100, "black", 
                 self.ui_instance.bg_color, 0.5, 0.99, 100, None, ANCHOR.BOTTOM.value, countdown_window)
-            # Normally, Tkinter waits til the program is idle, this forces it to update
+            # Normally, Tkinter waits until the program is idle but we want an update now
             self.ui_instance.window.update()
             sleep(1)
             counter -= 1

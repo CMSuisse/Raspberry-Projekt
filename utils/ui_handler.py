@@ -6,13 +6,10 @@ from utils.camera_handler import Camera_Handler
 
 class UI_Handler():
     def __init__(self, resolution: list, fullscreen: bool, bg_color: str, dropdown_font: tuple):
-        self.bg_color = bg_color
-        # In this dictionary the frames that contain more complex UI elements are stored
-        self.frames = {}
-        # In this dictionary the string variables that the program uses are stored
-        self.variables = {}
         # Initialize the window
         self.window = tk.Tk()
+        # Already define the color the background should have
+        self.bg_color = bg_color
         # Tkinter resolution has to be set with a string of format 000x000
         self.resolution = resolution
         self.window.geometry("{}x{}".format(self.resolution[0], self.resolution[1]))
@@ -24,10 +21,10 @@ class UI_Handler():
         # Frame instances are easier to work with than Tk instances
         self.main_frame = tk.Frame(
             master=self.window,
-            width=resolution[0],
-            height=resolution[1],
+            width=self.resolution[0],
+            height=self.resolution[1],
             borderwidth=1,
-            bg=bg_color
+            bg=self.bg_color
         )
         self.main_frame.pack()
 
@@ -43,15 +40,21 @@ class UI_Handler():
             )
             self.quit_button.place(relx=0.99, rely=0.075, anchor="se")
 
-    # Adds a simple label to the screen  
+        # Create dictionaries to store variables and frames for easy UI creation
+        self.variables = {}
+        self.frames = {}
+
+    # Adds label with text to the screen  
     def add_label(
         self, text:str, font: str, font_size: int, foreground: str, background:str,
         relx: float, rely: float, width: int, height: int, anchor: str, master=None
     ) -> None:
 
+        # If nothing else is given, make the object a child of the main frame
         if master==None:
             master=self.main_frame
         
+        # Create the object
         label = tk.Label(
             master=master,
             text=text,
@@ -61,16 +64,21 @@ class UI_Handler():
             width=width,
             height=height
         )
+        
+        # Place the object relative to its parent's top-left corner
         label.place(relx=relx, rely=rely, anchor=anchor)
 
+    # Adds a button with text and a callback function to the screen
     def add_button(
         self, text: str, font: str, font_size: int, foreground: str, background: str,
         relx: float, rely: float, width: int, height: int, anchor: str, callback_function, master=None
     ) -> None:
 
+        # If nothing else is given, make the object a child of the main frame
         if master==None:
             master=self.main_frame
         
+        # Create the object
         button = tk.Button(
             master=master,
             text=text,
@@ -80,7 +88,10 @@ class UI_Handler():
             width=width,
             height=height
         )
+
+        # Place the object relative to its parent's top-left corner
         button.place(relx=relx, rely=rely, anchor=anchor)
+        # Register the button's callback function
         button.bind("<Button-1>", callback_function)
 
     def add_frame(
@@ -89,6 +100,7 @@ class UI_Handler():
     ) -> None:
         
         # The frames are only used as a container for UI elements and therefore shouldn't stand out
+        # So background color is set to be the main frame's color
         frame = tk.Frame(
             master=self.main_frame,
             width=width,
@@ -97,6 +109,8 @@ class UI_Handler():
             highlightbackground="black",
             highlightthickness=1 if border else 0
         )
+
+        # Place the object relative to its parent's top-left corner
         frame.place(relx=relx, rely=rely, anchor=anchor)
         # Add the frame to the dictionary to access it via its tag
         self.frames[tag] = frame
@@ -107,13 +121,15 @@ class UI_Handler():
         relx: float, rely: float, width: int, height: int, anchor: str, master=None
     ) -> None:
 
+        # If nothing else is given, make the object a child of the main frame
         if master==None:
             master=self.main_frame
 
-        # Define the default value of the dropdown
+        # Define the variable the dropdown should change
         variable = tk.StringVar(master)
         self.variables[var_name] = variable
 
+        # Create the object
         entry = ttk.Combobox(
             master,
             width=width,
@@ -121,9 +137,12 @@ class UI_Handler():
             textvariable=variable,
             font=font
         )
+        # Only allow for inputs from the list
         entry["state"] = "readonly"
         entry["values"] = options_list
         entry.current(default_index)
+
+        # Place the object relative to its parent's top-left corner
         entry.place(relx=relx, rely=rely, anchor=anchor)
     
     def add_slider(
@@ -131,13 +150,16 @@ class UI_Handler():
         font: list, relx: float, rely: float, length: int, width: int, anchor: str, master=None
     ) -> None:
         
+        # If nothing else is given, make the object a child of the main frame
         if master==None:
             master=self.main_frame
-
+        
+        # Define the variable the slider should change
         slider_value = tk.IntVar()
         self.variables[tag] = slider_value
         
-        # The highlightbackground attribute is responsible for creating a white border when not set to self.bg_color
+        # The highlightbackground attribute is responsible for creating 
+        # a white border when not set to self.bg_color
         slider = tk.Scale(
             master=master,
             variable=slider_value,
@@ -151,6 +173,8 @@ class UI_Handler():
             width=width,
             font=font
         )
+
+        # Place the object relative to its parent's top-left corner
         slider.place(relx=relx, rely=rely, anchor=anchor)
 
     def add_checkbox(
@@ -158,12 +182,16 @@ class UI_Handler():
         relx: float, rely: float, width: int, height: int, anchor: str, master=None
     ) -> None:
         
+        # If nothing else is given, make the object a child of the main frame
         if master==None:
             master=self.main_frame
 
+        # Checkboxes work with IntVars for some reason
         variable = tk.IntVar(master)
         self.variables[var_name] = variable
 
+        # Create the object
+        # The IntVar will be 0 if unchecked and 1 otherwise
         checkbox = tk.Checkbutton(
             master=master,
             text=text,
@@ -175,9 +203,11 @@ class UI_Handler():
             width=width,
             height=height
         )
+
+        # Place the object relative to its parent's top-left corner
         checkbox.place(relx=relx, rely=rely, anchor=anchor)
 
-    # The API instance is being passed from the button defined in the main.py file
+    # This function is called by the capture button
     def capture_image(self, API_instance):
         # Gather the values of the dropdowns and sliders
         resolution = consts.RESOLUTION_SETTINGS[self.variables["resolution"].get()]
@@ -187,5 +217,5 @@ class UI_Handler():
 
         # Pass the values into a camera handler instance
         camera = Camera_Handler(preview_length, resolution, output, upload_image, self)
-        # Capture an image using the camera handle class
+        # Capture an image using the camera handler class and let it handle the rest
         camera.capture_image(API_instance)

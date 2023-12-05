@@ -1,6 +1,7 @@
 from enum import Enum
 
-# The tkinter argument anchor to set the position only takes a select amount of inputs
+# Using tkinter's direction anchors would have been stupid
+# This makes them more intuitive to work with (for me, at least)
 class ANCHOR(Enum):
     TOPLEFT = "nw"
     TOP = "n"
@@ -12,6 +13,7 @@ class ANCHOR(Enum):
     LEFT = "w"
     CENTER = "center"
 
+# The possible resolution settings the user can select
 RESOLUTION_SETTINGS = {
     "360p": [640, 360],
     "480p": [854, 480],
@@ -19,6 +21,7 @@ RESOLUTION_SETTINGS = {
     "1080p": [1920, 1080],
 }
 
+# The possible output options the user can select
 OUTPUT_SETTINGS = (
     "jpeg",
     "png",
@@ -28,4 +31,5 @@ OUTPUT_SETTINGS = (
     "raw"
 )
 
+# The font I want to have for the UI's dropdowns
 DROPDOWN_FONT = ("Arial", 18)
