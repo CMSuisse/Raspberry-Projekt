@@ -33,8 +33,8 @@ The file has to look like this:
 
 <h4>You should now be able to:</h4>
 
-- Select from a list of possble 16:9 aspect ratio resolutions.
+- Select from a list of possible 16:9 aspect ratio resolutions.
 - Select from a list of possible output formats.
 - Select a length for which the camera should preview its output.
-- Capture an image which will auomatically be saved in the <ins>captures</ins> folder.
+- Capture an image which will automatically be saved in the <ins>captures</ins> folder.
 - Select an option to automatically upload a captured image to the Flickr account your key and secret are attached to.
