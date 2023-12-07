@@ -4,7 +4,7 @@ Dieses EF Informatik Projekt hatte das Ziel, eine Rapsberry Pi so zu programmier
 <ins>You will need:</ins>  
     - A RaspberryPi (obviously)\
     - A RaspberryPi Touch Display\
-    - A RasperryPi PiCamera\
+    - A RasperryPi PiCamera
 
 <ins>You should do the follwing:</ins>  
 - Connect the Touch Display to the RaspberryPi.
@@ -16,6 +16,7 @@ Dieses EF Informatik Projekt hatte das Ziel, eine Rapsberry Pi so zu programmier
     API_KEY = #Your key here
     SECRET = #Your secret here
     ```
+    
 - Update the file path in the "cyrill_main.sh" so that it points to the "main.py" file of the repo.
 - Move the "cyrill_main.sh" file to the Pi's Desktop and make it executable.
 - Execute "cyrill_main.sh" (preferable with terminal output).
