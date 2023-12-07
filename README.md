@@ -39,4 +39,4 @@ The file has to look like this:
 - Capture an image which will automatically be saved in the <ins>captures</ins> folder.
 - Select an option to automatically upload a captured image to the Flickr account your key and secret are attached to.
 
-Hopefully this introduction was helpfull. If you're nonetheless encountering problems, fell free to contact me.
+Hopefully this introduction was helpfull. If you're nonetheless encountering problems, feel free to contact me.
