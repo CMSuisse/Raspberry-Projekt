@@ -1,9 +1,9 @@
 import random
 import string
+from time import sleep
 
 import picamera
 import tkinter as tk
-from time import sleep
 
 from utils.api_handler import API_Handler
 from utils.popup import popup
